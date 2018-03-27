@@ -1,0 +1,16 @@
+{
+  "name": "discord-high-score",
+  "version": "0.1.0",
+  "description": "Discord bot to track reaction high scores",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord-r9k-framework": "git+ssh://git@github.com/SarenCurrie/discord-r9k-framework.git",
+    "lodash.keyby": "^4.6.0",
+    "lokijs": "^1.5.3"
+  }
+}
