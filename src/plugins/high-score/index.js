@@ -59,6 +59,29 @@ const removeMentions = (message, opts) => {
 
 const reactionSum = (reactions1, reactions2) => reactions1.count + reactions2.count;
 
+const getMessages = (opts, channelId, before) => new Promise(function(resolve, reject) {
+  opts.bot.getMessages({ limit: 100, channelID: channelId, before }, (err, messages) => {
+    if (err) {
+      reject(err);
+      return;
+    }
+
+    resolve(messages);
+  });
+});
+
+const getAllMessages = (opts, channelId) => {
+  let thePromise = getMessages(opts, channelId);
+
+  for (var i = 0; i < 20; i++) {
+    thePromise = thePromise.then(messages => {
+      return getMessages(opts, channelId, messages[messages.length - 1] && messages[messages.length - 1].id)
+    });
+  }
+
+  return thePromise;
+}
+
 exports.init = (app) => {
   persistence.init(() => {
     app.addMessageTrigger('!high-score-sync', (opts) => {
@@ -66,15 +89,7 @@ exports.init = (app) => {
 
       Object.keys(opts.bot.servers[opts.serverId].channels).forEach((channelId) => {
         console.log(`Syncing channel ${channelId}`);
-        opts.bot.getMessages({ limit: 100, channelID: channelId }, (err, messages) => {
-          if (err) {
-            opts.bot.sendMessage({
-              message: `SCRIPT CRASH ${err}`,
-              to: opts.channelId,
-            });
-            return;
-          }
-
+        getAllMessages(opts, channelId).then((messages) => {
           messages.forEach((message) => {
             if (message.reactions) {
               persistence.createOrUpdateMessage(message.id, channelId, opts.serverId, keyBy(message.reactions.map((reaction) => {
@@ -93,6 +108,12 @@ exports.init = (app) => {
                 };
               }), 'id'));
             }
+          });
+        }).catch((err) => {
+          console.error(err);
+          opts.bot.sendMessage({
+            message: `SCRIPT CRASH ${err}`,
+            to: opts.channelId,
           });
         });
       });
