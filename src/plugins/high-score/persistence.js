@@ -48,6 +48,7 @@ function getMessage(messageId, serverId) {
 exports.createOrUpdateMessage = (messageId, channelId, serverId, reactions) => {
   const messages = messageCollection();
 
+  messages.findAndRemove({ id: messageId });
   messages.insert({ id: messageId, channelId, serverId, reactions, total: Object.values(reactions).map(r => r.count).reduce(((a, b) => a + b), 0) });
 
   db.saveDatabase(err => console.error(err));
