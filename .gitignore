@@ -1,8 +1,5 @@
 # Database
-data/
-
-# Secret triggers
-secret-triggers.js
+data/*.json
 
 #### joe made this: http://goel.io/joe
 
